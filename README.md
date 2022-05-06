@@ -8,4 +8,4 @@ To compile an executable follow these steps:
 1) Clone the repo
 2) Download <a href="https://www.raylib.com/">Raylib</a>
 3) Open landmass_generation.c using npp (Notepad Plus Plus) given in the folder C:/raylib/npp
-4) Press F6
+4) Press F6 to build an executable and run it.

@@ -155,7 +155,6 @@ void Frame()
         DrawPoly(hexPos, 6, 5, 0, RED);
 
     DrawFPS(windowWidth - 80, 10);
-    DrawText(TextFormat("Quality: %02.02f", GetFrameTime()), windowWidth / 2, 10, 20, BLACK);
     DrawText("Landmass Generation using Perlin Noise", 90, 50, 30, RED);
     DrawRectangle(checkbox.x - 2, checkbox.y - 2, checkbox.width + 4, checkbox.height + 4, WHITE);
     DrawRectangle(checkbox.x, checkbox.y, checkbox.width, checkbox.height, debug ? RED : GRAY);

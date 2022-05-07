@@ -25,7 +25,7 @@
 #include <math.h>
 
 #if defined(PLATFORM_WEB)
-    #include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #endif
 
 #define max(a, b) \
@@ -37,12 +37,9 @@
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
-const int screenWidth = 800;
-const int screenHeight = 450;
+const int windowWidth = 800, windowHeight = 450;
 const float moveSpeed = 1, zoomSpeed = .1f;
 const float landmassTreshold = .5;
-const int quality = 50;
-const float rSize = 100 / quality;
 const Rectangle checkbox = {10, 10, 20, 20};
 const Layer layers[] = {
     {.9f, {220, 255, 255, 255}},
@@ -56,6 +53,9 @@ const char layerCount = 6;
 const float acc = .9f;
 
 Vector2 hexPos, mousePos, lastMousePos;
+float rScale = 2;
+float rX = 400;
+float rY = 225;
 float posXZoomed, posYZoomed;
 float posX = 83333, posY = 83333;
 float velX = 0, velY = 0;
@@ -69,6 +69,14 @@ void Frame()
     // Update
     mousePos = GetMousePosition();
     moveSpeedOverZoom = moveSpeed / zoom;
+
+    // Setting quality as per Framerate
+    if (GetFrameTime() > .35f)
+    {
+       rScale *= 2;
+       rX = windowWidth / rScale;
+       rY = windowHeight / rScale;
+    }
 
     // Movement Code
 
@@ -114,10 +122,10 @@ void Frame()
 
     // Draw
     BeginDrawing();
-    for (int x = 0; x < (screenWidth / rSize) / (1 + debug); x++)
-        for (int y = 0; y < screenHeight / rSize; y++)
+    for (int x = 0; x < rX / (1 + debug); x++)
+        for (int y = 0; y < rY; y++)
         {
-            noise = perlin2d(x + (int)(posXZoomed / rSize), y + (int)(posYZoomed / rSize), 1 / zoom, 1);
+            noise = perlin2d(x + (int)(posXZoomed / rScale), y + (int)(posYZoomed / rScale), 1 / zoom, 1);
 
             for (char i = 0; i < layerCount; i++)
             {
@@ -128,25 +136,26 @@ void Frame()
                 }
             }
 
-            if (quality == 100)
+            if (rScale == 1)
                 DrawPixel(x, y, c);
             else
-                DrawRectangle(x * rSize, y * rSize, rSize, rSize, c);
+                DrawRectangle(x * rScale, y * rScale, rScale, rScale, c);
 
             if (debug)
             {
                 c.r = c.g = c.b = noise * 255;
-                if (quality == 100)
-                    DrawPixel(x + screenWidth / 2, y, c);
+                if (rScale == 1)
+                    DrawPixel(x + windowWidth / 2, y, c);
                 else
-                    DrawRectangle(x * rSize + screenWidth / 2, y * rSize, rSize, rSize, c);
+                    DrawRectangle(x * rScale + windowWidth / 2, y * rScale, rScale, rScale, c);
             }
         }
 
     if (debug)
         DrawPoly(hexPos, 6, 5, 0, RED);
 
-    DrawFPS(screenWidth - 80, 10);
+    DrawFPS(windowWidth - 80, 10);
+    DrawText(TextFormat("Quality: %02.02f", GetFrameTime()), windowWidth / 2, 10, 20, BLACK);
     DrawText("Landmass Generation using Perlin Noise", 90, 50, 30, RED);
     DrawRectangle(checkbox.x - 2, checkbox.y - 2, checkbox.width + 4, checkbox.height + 4, WHITE);
     DrawRectangle(checkbox.x, checkbox.y, checkbox.width, checkbox.height, debug ? RED : GRAY);
@@ -159,8 +168,7 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-
-    InitWindow(screenWidth, screenHeight, "Landmass Generation");
+    InitWindow(windowWidth, windowHeight, "Landmass Generation");
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(Frame, 0, 1);
@@ -170,9 +178,7 @@ int main(void)
 
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
-    {
         Frame();
-    }
 #endif
 
     // De-Initialization

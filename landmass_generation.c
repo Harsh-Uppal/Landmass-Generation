@@ -51,6 +51,8 @@ const Layer layers[] = {
 };
 const char layerCount = 6;
 const float acc = .9f;
+const Color DARKSLATEGRAY = {32, 64, 64, 255};
+const Color CYAN = {0, 255, 255, 255};
 
 Vector2 hexPos, mousePos, lastMousePos;
 float rScale = 2;
@@ -122,8 +124,9 @@ void Frame()
 
     // Draw
     BeginDrawing();
+    ClearBackground(DARKSLATEGRAY);
     for (int x = 0; x < rX / (1 + debug); x++)
-        for (int y = 0; y < rY; y++)
+        for (int y = 40 / rScale; y < rY; y++)
         {
             noise = perlin2d(x + (int)(posXZoomed / rScale), y + (int)(posYZoomed / rScale), 1 / zoom, 1);
 
@@ -151,11 +154,11 @@ void Frame()
             }
         }
 
-    if (debug)
+    if (debug && mousePos.y > 40)
         DrawPoly(hexPos, 6, 5, 0, RED);
 
     DrawFPS(windowWidth - 80, 10);
-    DrawText("Landmass Generation using Perlin Noise", 90, 50, 30, RED);
+    DrawText("Landmass Generation using Perlin Noise", windowWidth / 2 - 190, 10, 20, CYAN);
     DrawRectangle(checkbox.x - 2, checkbox.y - 2, checkbox.width + 4, checkbox.height + 4, WHITE);
     DrawRectangle(checkbox.x, checkbox.y, checkbox.width, checkbox.height, debug ? RED : GRAY);
     EndDrawing();
